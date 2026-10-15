@@ -191,6 +191,12 @@ def plan_option(label, route, stop_arrivals, walk_to_stop_min, ride_min,
     return o
 
 
-def recommend(options):
+def recommend(options, tol_sec: int = 120):
+    """최종 도착이 가장 빠른 경로. 단, 도착 시각 차이가 tol_sec 이내면 '먼저 타는 버스' 쪽을 추천
+    (같은 환승 버스를 타게 돼 도착이 사실상 같다면, 일찍 타는 쪽이 지연에 안전하고 정류장에서 덜 기다림)"""
     ok = [o for o in options if o.home_stop_sec is not None]
-    return min(ok, key=lambda o: o.home_stop_sec) if ok else None
+    if not ok:
+        return None
+    fastest = min(o.home_stop_sec for o in ok)
+    near = [o for o in ok if o.home_stop_sec <= fastest + tol_sec]
+    return min(near, key=lambda o: (o.boarded.eta_sec, o.home_stop_sec))
