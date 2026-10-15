@@ -31,7 +31,8 @@ STOPS = [stp["ars"] for sd in SIDES for stp in sd["stops"]]
 
 st.markdown("""
 <style>
-.block-container{padding-top:1.6rem;max-width:1100px}
+.block-container{padding-top:3.2rem;max-width:1100px}
+header[data-testid="stHeader"]{display:none}
 .side{border:1px solid rgba(128,128,128,.28);border-top-width:6px;border-radius:18px;padding:16px 18px 12px;margin:0 0 14px;background:rgba(128,128,128,.05)}
 .side .sn{font-weight:800;font-size:1.15rem}
 .side .big{font-size:2.5rem;font-weight:800;line-height:1.15;margin:6px 0 2px}
