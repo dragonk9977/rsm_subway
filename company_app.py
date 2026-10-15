@@ -120,7 +120,9 @@ def fetch_snapshot():
 
 
 def get_snapshot():
-    if is_active() and time.time() - st.session_state.get("last_try", 0) >= REFRESH:
+    first_visit = "last_try" not in st.session_state       # 페이지를 처음 연 순간: 시간대와 상관없이 한 번 조회
+    stale = time.time() - st.session_state.get("last_try", 0) >= REFRESH
+    if first_visit or (is_active() and stale):              # 이후 자동 갱신은 퇴근 시간대에만
         fetch_snapshot()
     return st.session_state.get("snap")
 
@@ -240,8 +242,9 @@ def map_frag():
 
 
 if not is_active():
-    st.info(f"퇴근 시간대({WINDOW[0]}~{WINDOW[1]}시, 평일)에 자동으로 조회해요. 지금 보려면 아래 버튼을 누르세요.")
-    if st.button("지금 한 번 조회"):
+    st.info(f"페이지를 열 때 한 번 조회했어요. 자동 갱신은 퇴근 시간대({WINDOW[0]}~{WINDOW[1]}시, 평일)에만 돼요. "
+            "최신 정보가 필요하면 아래 버튼을 누르거나 새로고침하세요.")
+    if st.button("지금 다시 조회"):
         fetch_snapshot()
 
 st.title("🚌 퇴근길 버스")
