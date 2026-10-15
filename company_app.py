@@ -12,7 +12,7 @@ import bus
 import kmap
 
 KST = ZoneInfo("Asia/Seoul")
-st.set_page_config(page_title="퇴근길 버스", page_icon="🚌", layout="centered")
+st.set_page_config(page_title="퇴근길 버스", page_icon="🚌", layout="wide")
 
 # ── 설정 (정류장/노선은 여기만 고치면 됩니다) ───────────────────
 WALK_MIN = 3            # 1층 → 정류장 도보(분)
@@ -31,7 +31,7 @@ STOPS = [stp["ars"] for sd in SIDES for stp in sd["stops"]]
 
 st.markdown("""
 <style>
-.block-container{padding-top:1.6rem;max-width:760px}
+.block-container{padding-top:1.6rem;max-width:1100px}
 .side{border:1px solid rgba(128,128,128,.28);border-top-width:6px;border-radius:18px;padding:16px 18px 12px;margin:0 0 14px;background:rgba(128,128,128,.05)}
 .side .sn{font-weight:800;font-size:1.15rem}
 .side .big{font-size:2.5rem;font-weight:800;line-height:1.15;margin:6px 0 2px}
@@ -196,7 +196,7 @@ def cards_frag():
     now = v["now"]
     st.caption(f"마지막 조회 {datetime.fromtimestamp(v['t'], KST):%H:%M:%S} · 숫자는 1초마다 줄어들고 "
                f"{REFRESH}초마다 새로 받아옵니다")
-    for s in v["sides"]:
+    for col, s in zip(st.columns(len(v["sides"])), v["sides"]):   # 방면별 카드를 좌우로 나란히 (좁은 화면은 자동으로 위아래)
         sd, best, ride = s["sd"], s["best"], s["ride"]
         if best:
             b = best["bus"]
@@ -214,8 +214,9 @@ def cards_frag():
             is_best = best and r["stp"] is best["stp"]
             rows += (f'<div class="row{" best" if is_best else ""}"><span class="rn">{H.escape(r["stp"]["route"])}번</span>'
                      f'<span style="opacity:.6">{r["stp"]["ars"]}</span><span>{times_html(r["buses"])}</span></div>')
-        st.markdown(f'<div class="side" style="border-top-color:{sd["color"]}"><div class="sn">{H.escape(sd["name"])}</div>'
-                    f'{head}<div style="margin-top:8px">{rows}</div></div>', unsafe_allow_html=True)
+        with col:
+            st.markdown(f'<div class="side" style="border-top-color:{sd["color"]}"><div class="sn">{H.escape(sd["name"])}</div>'
+                        f'{head}<div style="margin-top:8px">{rows}</div></div>', unsafe_allow_html=True)
 
 
 @st.fragment(run_every=REFRESH)
